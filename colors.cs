@@ -43,8 +43,9 @@ namespace Calisto
             {"/", new() {{"", "\x1b[0m"}}},
         };
 
-        public static bool TryParse(ref string message)
+        public static bool TryParse(ref string message, out string? exceptionMessage)
         {
+            exceptionMessage = null;
             try
             {
                 message = Parse(message);
@@ -52,9 +53,14 @@ namespace Calisto
             }
             catch (Exception e) when (e is ArgumentException || e is KeyNotFoundException)
             {
-                Console.WriteLine(e.Message);
+                exceptionMessage = e.Message;
                 return false;
             }
+        }
+
+        public static bool TryParse(ref string message)
+        {
+            return TryParse(ref message, out _);
         }
 
         public static string Parse(string message)

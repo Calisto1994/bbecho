@@ -4,9 +4,28 @@
     { 
         static void Main(string[] args)
         {
-            string message = string.Join(" ", args);
-            ColorUtil.TryParse(ref message);
-            Console.WriteLine(message);
+            string message;
+            string? exceptionMessage;
+            if (Console.IsInputRedirected)
+            {
+                message = Console.In.ReadToEnd().TrimEnd('\r', '\n');
+            }
+            else
+            {
+                message = string.Join(" ",args);
+            }
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                if (ColorUtil.TryParse(ref message, out exceptionMessage))
+                {
+                    Console.Out.WriteLine(message);  
+                }
+                else
+                {
+                    Console.Error.WriteLine(exceptionMessage);
+                } 
+            }
         }
     }
 }
