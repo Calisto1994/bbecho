@@ -67,6 +67,7 @@ namespace Calisto
             var outMessage = "";
             var tagBuilder = new StringBuilder();
             var outBuilder = new StringBuilder();
+            var selfClosing = false;
             
             
             for (int i = 0; i < message.Length; i++)
@@ -90,9 +91,6 @@ namespace Calisto
                 }
                 else if (message[i] == ']')
                 {
-                    if (tagBuilder.Length == 0)
-                        throw new ArgumentException(
-                            Parse("[color=yellow]Warning[/color]: Tried to end tag without beginning."));
                     if (isEscaped)
                     {
                         outBuilder.Append(message[i]);
@@ -100,9 +98,51 @@ namespace Calisto
                     }
                     else
                     {
+                        if (tagBuilder.Length == 0)
+                        {
+                            throw new ArgumentException(
+                                Parse("[color=yellow]Warning[/color]: Tried to end tag without beginning."));   
+                        }
                         tagString = tagBuilder.ToString();
                         tagBuilder.Clear();
                         isTag = false;
+                        
+                        if (tagString.EndsWith(" /"))
+                        {
+                                tagString = tagString.Substring(0, tagString.Length - 2); // removes the trailing " /".
+                                selfClosing = true;
+                        } else if (tagString.EndsWith(" //"))
+                        {
+                            tagString = tagString.Substring(0, tagString.Length - 3); // removes the trailing " //".
+                            if (tagStack.Count > 0)
+                            {
+                                var newStack = new Stack<string[]>();
+                                var found = 0;
+                                foreach (var tagsToFilter in tagStack)
+                                {
+                                    if (tagsToFilter[0] != tagString)
+                                    {
+                                        newStack.Push(tagsToFilter);
+                                    }
+                                    else
+                                    {
+                                        found++;
+                                    }
+                                }
+
+                                if (found == 0)
+                                    throw new ArgumentException(Parse(
+                                        $"[color=yellow]Warning[/]: Tried to clean up \\[{tagString}\\] when there was no instance of it previously used."));
+
+                                tagStack = newStack; // overwrite old stack. We've removed our last tag.
+                            }
+                            else
+                            {
+                                throw new ArgumentException(Parse(
+                                    "[color=yellow]Warning[/]: Tried to clean up when there's nothing to clean up."));
+                            }
+                            selfClosing = true;
+                        }
                         
                         if (tagString.Contains("="))
                         {
@@ -146,20 +186,22 @@ namespace Calisto
                                 }
                                 else
                                 {
-                                    throw new ArgumentException(Parse($"[color=yellow]Warning[/color]: Tried to use \\[{tagString}\\] to close tag, but \\[/{tagStack.Peek()[0]}\\] was expected."));
+                                    throw new ArgumentException(Parse($"[color=yellow]Warning[/]: Tried to use \\[{tagString}\\] to close tag, but \\[/{tagStack.Peek()[0]}\\] was expected."));
                                 }
                             }
                             else
                             {
-                                throw new ArgumentException(Parse($"[color=yellow]Warning[/color]: Tried to use \\[{tagString}\\], but no tag was opened previously."));
+                                throw new ArgumentException(Parse($"[color=yellow]Warning[/]: Tried to use \\[{tagString}\\], but no tag was opened previously."));
                             }
                         }
                         else
                         {
-                            throw new ArgumentException(Parse("[color=yellow]Warning[/color]: Invalid tag: " + tagString));
+                            throw new ArgumentException(Parse("[color=yellow]Warning[/]: Invalid tag: " + tagString));
                         }
                         
                         argString = "";
+                        if (selfClosing && tagStack.Count > 0) tagStack.Pop(); // this was a self-closing tag. remove it.
+                        selfClosing = false;
                     }
                 }
                 else
@@ -186,7 +228,7 @@ namespace Calisto
                     }
                 }
 
-                throw new ArgumentException(Parse("[color=yellow]Warning[/color]: There are still some tags open: " + string.Join(" ", openTags.ToArray())));
+                throw new ArgumentException(Parse("[color=yellow]Warning[/]: There are still some tags open: " + string.Join(" ", openTags.ToArray())));
             }
                     
             outMessage = outBuilder.ToString();
