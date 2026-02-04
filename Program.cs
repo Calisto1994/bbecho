@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Calisto
+﻿namespace Calisto
 {
     public class Test
     { 
