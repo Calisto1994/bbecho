@@ -118,7 +118,7 @@ namespace Calisto
                             {
                                 var newStack = new Stack<string[]>();
                                 var found = 0;
-                                foreach (var tagsToFilter in tagStack)
+                                foreach (var tagsToFilter in tagStack.Reverse())
                                 {
                                     if (tagsToFilter[0] != tagString)
                                     {
