@@ -13,9 +13,12 @@ for background colors.
 `[b]` for **bold** text\
 `[i]` for *italic* text\
 `[u]` for <ins>underlined</ins> text
+`[s]` or `[strike]` for ~~striked text~~
+and 
 
 Using a color tag without the parameter (e.g. `[color]` instead of `[color=yellow]`)
-will reset the color to the default.
+will reset the color to the default. But it will *not* ignore the previous opened tag (and is an opened tag on its own).\
+To do so, see the _Special Codes_ section.
 ### Special codes
 `[/]` will end *all* previous tags.\
 A self-closing tag like `[color=red /]` will make BBEcho set the color but ignore the tag otherwise.\

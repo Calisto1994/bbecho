@@ -14,6 +14,7 @@ namespace Calisto
             {"i", new() {{"", "\x1b[3m"}}},
             {"blink", new() {{"", "\x1b[5m"}}},
             {"strike", new() {{"", "\x1b[9m"}}},
+            {"s", new() {{"", "\x1b[9m"}}},
             {"color", new ()
                 {
                     {"", "\x1b[39m"}, // default value, if someone would use [color] instead of [color=yellow]
