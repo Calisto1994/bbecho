@@ -19,11 +19,13 @@
             {
                 if (ColorUtil.TryParse(ref message, out exceptionMessage))
                 {
-                    Console.Out.WriteLine(message);  
+                    Console.Out.WriteLine(message);
+                    Environment.Exit(0);
                 }
                 else
                 {
                     Console.Error.WriteLine(exceptionMessage);
+                    Environment.Exit(1);
                 } 
             }
         }
